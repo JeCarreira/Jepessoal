@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Meu Método</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ═══════════════════════════════════
+   SUPABASE CONFIG — substitui aqui
+   ═══════════════════════════════════ */
+:root {
+  --ink: #14100A;
+  --cream: #F8F3EB;
+  --warm: #F0E8D8;
+  --paper: #FDFAF5;
+  --rose: #B85C52;
+  --rose-l: #F2DDD8;
+  --blush: #E8B4A8;
+  --sage: #6B8F68;
+  --sage-l: #D4E4D0;
+  --gold: #B08A3A;
+  --gold-l: #F0E0B0;
+  --mauve: #8A6B9A;
+  --mauve-l: #E8D8F0;
+  --teal: #4A8A8A;
+  --teal-l: #D0E8E8;
+  --mid: rgba(20,16,10,0.55);
+  --soft: rgba(20,16,10,0.38);
+  --border: rgba(20,16,10,0.09);
+  --border2: rgba(20,16,10,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--cream);color:var(--ink);font-family:'Outfit',sans-serif;font-weight:300;}
+
+/* ─── AUTH SCREEN ─── */
+#authScreen {
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:1.5rem;
+  background:var(--ink);
+  position:relative;
+  overflow:hidden;
+}
+#authScreen::before {
+  content:'';
+  position:absolute;
+  top:-80px;right:-80px;
+  width:300px;height:300px;
+  border-radius:50%;
+  background:rgba(184,149,74,0.06);
+}
+#authScreen::after {
+  content:'';
+  position:absolute;
+  bottom:-60px;left:-40px;
+  width:200px;height:200px;
+  border-radius:50%;
+  background:rgba(184,149,74,0.04);
+}
+.auth-box {
+  background:var(--cream);
+  border-radius:20px;
+  padding:2rem 1.8rem 2.2rem;
+  width:100%;
+  max-width:400px;
+  position:relative;
+  z-index:1;
+}
+.auth-logo {
+  font-size:10px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--rose);
+  margin-bottom:0.5rem;
+}
+.auth-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;
+  font-weight:300;
+  color:var(--ink);
+  line-height:1.2;
+  margin-bottom:0.3rem;
+}
+.auth-title em { font-style:italic; color:var(--rose); }
+.auth-sub {
+  font-size:12px;
+  color:var(--mid);
+  margin-bottom:1.8rem;
+  line-height:1.5;
+}
+.auth-tabs {
+  display:flex;
+  gap:0;
+  margin-bottom:1.5rem;
+  background:var(--warm);
+  border-radius:10px;
+  padding:3px;
+}
+.auth-tab {
+  flex:1;
+  padding:8px;
+  text-align:center;
+  font-size:12px;
+  font-weight:500;
+  color:var(--mid);
+  cursor:pointer;
+  border-radius:8px;
+  transition:all 0.2s;
+}
+.auth-tab.on {
+  background:white;
+  color:var(--ink);
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+.auth-form { display:flex; flex-direction:column; gap:12px; }
+.auth-form.hide { display:none; }
+.auth-label {
+  font-size:11px;
+  font-weight:500;
+  color:var(--mid);
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  margin-bottom:4px;
+  display:block;
+}
+.auth-input {
+  width:100%;
+  padding:11px 14px;
+  border:1px solid var(--border2);
+  border-radius:10px;
+  font-family:'Outfit',sans-serif;
+  font-size:14px;
+  color:var(--ink);
+  background:white;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.auth-input:focus { border-color:var(--rose); }
+.auth-input::placeholder { color:var(--soft); }
+.auth-btn {
+  width:100%;
+  padding:13px;
+  background:var(--rose);
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-family:'Outfit',sans-serif;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  transition:opacity 0.2s;
+  margin-top:4px;
+}
+.auth-btn:hover { opacity:0.88; }
+.auth-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.auth-divider {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:4px 0;
+  font-size:11px;
+  color:var(--soft);
+}
+.auth-divider::before, .auth-divider::after {
+  content:'';flex:1;height:1px;background:var(--border2);
+}
+.google-btn {
+  width:100%;
+  padding:12px;
+  background:white;
+  color:var(--ink);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  font-family:'Outfit',sans-serif;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  transition:all 0.2s;
+}
+.google-btn:hover { border-color:var(--rose); background:var(--rose-l); }
+.google-icon {
+  width:18px;height:18px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%234285F4' d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'/%3E%3Cpath fill='%2334A853' d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z'/%3E%3Cpath fill='%23FBBC05' d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z'/%3E%3Cpath fill='%23EA4335' d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z'/%3E%3C/svg%3E") center/contain no-repeat;
+  flex-shrink:0;
+}
+.auth-error {
+  background:var(--rose-l);
+  color:var(--rose);
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:12px;
+  line-height:1.4;
+  display:none;
+}
+.auth-error.on { display:block; }
+.auth-success {
+  background:var(--sage-l);
+  color:var(--sage);
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:12px;
+  line-height:1.4;
+  display:none;
+}
+.auth-success.on { display:block; }
+.forgot-link {
+  font-size:11px;
+  color:var(--rose);
+  text-align:right;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.forgot-link:hover { opacity:0.75; }
+
+/* ─── USER BAR ─── */
+#userBar {
+  display:none;
+  background:var(--ink);
+  padding:8px 1.1rem;
+  align-items:center;
+  justify-content:space-between;
+}
+#userBar.on { display:flex; }
+.user-email {
+  font-size:11px;
+  color:rgba(248,243,235,0.5);
+  max-width:200px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.user-avatar {
+  width:28px;height:28px;
+  border-radius:50%;
+  background:var(--rose);
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;color:white;
+  flex-shrink:0;
+}
+.logout-btn {
+  font-size:11px;
+  color:rgba(248,243,235,0.4);
+  cursor:pointer;
+  background:none;border:none;
+  font-family:'Outfit',sans-serif;
+  padding:4px 8px;
+  border-radius:6px;
+  transition:all 0.2s;
+}
+.logout-btn:hover { color:var(--blush); background:rgba(248,243,235,0.05); }
+
+/* ─── MAIN APP ─── */
+#app { display:none; }
+#app.on { display:block; }
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:50;background:var(--ink);display:flex;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nt{flex-shrink:0;padding:13px 15px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(248,243,235,0.4);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
+.nt:hover{color:rgba(248,243,235,0.75);}
+.nt.on{color:#E8B4A8;border-bottom-color:#E8B4A8;}
+
+/* PAGES */
+.pg{display:none;padding:1.3rem 1.1rem 4rem;animation:fu 0.3s ease;}
+.pg.on{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* HERO */
+.hero{background:var(--ink);margin:-1.3rem -1.1rem 1.4rem;padding:2rem 1.4rem 1.5rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(176,138,58,0.07);}
+.hkick{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:0.6rem;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,6vw,2.8rem);font-weight:300;color:var(--cream);line-height:1.15;margin-bottom:0.4rem;}
+.hero h1 em{font-style:italic;color:var(--blush);}
+.hsub{font-size:12px;color:rgba(248,243,235,0.45);line-height:1.6;max-width:290px;}
+.hstats{display:flex;gap:20px;margin-top:1.3rem;padding-top:1.1rem;border-top:1px solid rgba(248,243,235,0.07);}
+.hstat{text-align:center;}
+.hstat-n{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);line-height:1;}
+.hstat-l{font-size:9px;color:rgba(248,243,235,0.35);letter-spacing:0.1em;text-transform:uppercase;margin-top:1px;}
+
+/* LABELS */
+.lbl{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rose);margin-bottom:0.85rem;display:flex;align-items:center;gap:10px;}
+.lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* CARDS */
+.card{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;}
+.ct{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:4px;}
+.cs{font-size:12px;color:var(--mid);line-height:1.55;}
+
+/* TRACKER */
+.tw{background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:1.1rem;margin-bottom:1rem;}
+.tg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:0.8rem;}
+.td{aspect-ratio:1;border-radius:8px;border:1px solid var(--border);background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--soft);cursor:pointer;transition:all 0.15s;flex-direction:column;gap:1px;}
+.td:hover{border-color:var(--rose);}
+.td.done{background:var(--sage);border-color:var(--sage);color:white;}
+.td.hard{background:var(--gold-l);border-color:var(--gold);color:var(--gold);}
+.td.skip{background:var(--rose-l);border-color:var(--blush);color:var(--rose);}
+.td.today{border:2px solid var(--rose);color:var(--rose);font-weight:600;}
+.td-day{font-size:8px;opacity:0.7;}
+.tleg{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--soft);}
+.tleg-i{display:flex;align-items:center;gap:4px;}
+.tleg-d{width:9px;height:9px;border-radius:2px;}
+
+/* MES TABS */
+.mes-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:1rem;padding-bottom:2px;}
+.mes-tabs::-webkit-scrollbar{display:none;}
+.mes-tab{flex-shrink:0;padding:7px 14px;font-size:11px;border-radius:20px;border:1px solid var(--border);color:var(--mid);cursor:pointer;transition:all 0.18s;background:var(--paper);white-space:nowrap;}
+.mes-tab.on{background:var(--ink);border-color:var(--ink);color:var(--cream);}
+.mes-content{display:none;}
+.mes-content.on{display:block;}
+.mes-header{background:var(--ink);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1rem;}
+.mes-num{font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold);opacity:0.4;line-height:1;}
+.mes-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--cream);margin-top:-0.3rem;}
+.mes-desc{font-size:12px;color:rgba(248,243,235,0.5);margin-top:4px;line-height:1.5;}
+.mes-foco{display:inline-block;margin-top:0.7rem;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);background:rgba(176,138,58,0.12);padding:4px 12px;border-radius:20px;}
+
+/* SEMANAS */
+.sem-block{margin-bottom:1rem;}
+.sem-header{display:flex;align-items:center;gap:10px;padding:0.8rem 1rem;background:var(--paper);border:1px solid var(--border);border-radius:12px 12px 0 0;cursor:pointer;border-bottom:none;}
+.sem-n{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--blush);min-width:24px;}
+.sem-title{font-size:13px;font-weight:500;color:var(--ink);flex:1;}
+.sem-arr{font-size:10px;color:var(--soft);transition:transform 0.2s;}
+.sem-arr.op{transform:rotate(180deg);}
+.sem-body{background:var(--paper);border:1px solid var(--border);border-radius:0 0 12px 12px;border-top:1px solid var(--border);padding:0 1rem 0.8rem;display:none;}
+.sem-body.op{display:block;}
+.sem-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--mid);line-height:1.45;}
+.sem-item:last-child{border-bottom:none;}
+.si-check{width:16px;height:16px;border-radius:50%;border:1px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;transition:all 0.15s;}
+.si-check.ck{background:var(--sage);border-color:var(--sage);color:white;}
+
+/* DESAFIOS MODOS */
+.modo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem;}
+.modo-card{border-radius:14px;padding:1.1rem;cursor:pointer;transition:transform 0.18s;border:1px solid transparent;}
+.modo-card:hover{transform:translateY(-2px);}
+.modo-card.glow{background:linear-gradient(135deg,#F2DDD8 0%,#F0E0B0 100%);border-color:var(--blush);}
+.modo-card.cave{background:linear-gradient(135deg,#1a1208 0%,#2C2010 100%);border-color:rgba(248,243,235,0.1);}
+.modo-card.body{background:linear-gradient(135deg,#D0E8E8 0%,#D4E4D0 100%);border-color:var(--teal);}
+.modo-card.mente{background:linear-gradient(135deg,#E8D8F0 0%,#D8D8F0 100%);border-color:var(--mauve);}
+.modo-icon{font-size:24px;margin-bottom:6px;}
+.modo-name{font-size:13px;font-weight:500;color:var(--ink);}
+.modo-name.light{color:var(--cream);}
+.modo-desc{font-size:11px;color:var(--mid);margin-top:3px;line-height:1.4;}
+.modo-desc.light{color:rgba(248,243,235,0.5);}
+.modo-dur{font-size:10px;margin-top:6px;padding:2px 8px;border-radius:10px;display:inline-block;font-weight:500;}
+.dur-rose{background:rgba(184,92,82,0.15);color:var(--rose);}
+.dur-gold{background:rgba(176,138,58,0.15);color:var(--gold);}
+.dur-teal{background:rgba(74,138,138,0.15);color:var(--teal);}
+.dur-mauve{background:rgba(138,107,154,0.15);color:var(--mauve);}
+.dur-light{background:rgba(248,243,235,0.1);color:rgba(248,243,235,0.6);}
+
+.desafio-detail{background:var(--ink);border-radius:16px;padding:1.3rem;margin-bottom:1rem;display:none;position:relative;overflow:hidden;}
+.desafio-detail.on{display:block;}
+.desafio-detail::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(176,138,58,0.08);}
+.dd-tag{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+.dd-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--cream);margin-bottom:0.4rem;}
+.dd-week{display:flex;gap:8px;margin:0.8rem 0;}
+.dd-day{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.dd-dname{font-size:9px;color:rgba(248,243,235,0.4);text-transform:uppercase;letter-spacing:0.05em;}
+.dd-circle{width:28px;height:28px;border-radius:50%;border:1px solid rgba(248,243,235,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(248,243,235,0.3);cursor:pointer;transition:all 0.15s;}
+.dd-circle.ck{background:var(--sage);border-color:var(--sage);color:white;}
+.dd-tasks{margin-top:0.8rem;}
+.dd-task{font-size:12px;color:rgba(248,243,235,0.55);padding:5px 0;border-bottom:1px solid rgba(248,243,235,0.05);display:flex;gap:8px;}
+.dd-task:last-child{border-bottom:none;}
+.dd-bullet{color:var(--blush);flex-shrink:0;}
+.close-btn{background:rgba(248,243,235,0.08);border:none;color:rgba(248,243,235,0.5);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:0.8rem;}
+
+/* PROFISSÃO */
+.prof-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:1rem;}
+.prof-card{background:var(--paper);border:1px solid var(--border);border-radius:12px;padding:1rem 1.1rem;cursor:pointer;transition:all 0.18s;}
+.prof-card:hover{border-color:var(--rose-l);transform:translateX(3px);}
+.prof-card.sel{border-color:var(--rose);background:var(--rose-l);}
+.prof-top{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.prof-icon{font-size:20px;}
+.prof-name{font-size:14px;font-weight:500;color:var(--ink);}
+.prof-match{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;}
+.pm-high{background:var(--sage-l);color:var(--sage);}
+.pm-med{background:var(--gold-l);color:var(--gold);}
+.prof-desc{font-size:12px;color:var(--mid);line-height:1.45;}
+.prof-tags{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;}
+.ptag{font-size:10px;padding:2px 8px;border-radius:10px;background:var(--warm);color:var(--mid);}
+.prof-detail{display:none;margin-top:0.8rem;border-top:1px solid var(--border);padding-top:0.8rem;}
+.prof-card.sel .prof-detail{display:block;}
+.pd-item{font-size:12px;color:var(--mid);padding:4px 0;display:flex;gap:8px;}
+.pd-arrow{color:var(--rose);}
+
+/* SEMANA */
+.srow{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.srow:last-child{border-bottom:none;}
+.sck{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:8px;transition:all 0.15s;margin-top:1px;}
+.sck.on{background:var(--sage);border-color:var(--sage);color:white;}
+.sday{font-size:10px;font-weight:500;color:var(--rose);min-width:26px;text-transform:uppercase;letter-spacing:0.06em;padding-top:1px;}
+.stask{font-size:12px;color:var(--ink);flex:1;line-height:1.4;}
+.stag{font-size:9px;padding:2px 7px;border-radius:8px;font-weight:500;flex-shrink:0;}
+.tag-eu{background:var(--mauve-l);color:var(--mauve);}
+.tag-corp{background:var(--teal-l);color:var(--teal);}
+.tag-criar{background:var(--gold-l);color:var(--gold);}
+.tag-aprender{background:var(--sage-l);color:var(--sage);}
+.tag-acao{background:var(--rose-l);color:var(--rose);}
+
+/* PILARES */
+.pgrid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:1rem;}
+.pc{border-radius:14px;padding:1rem;cursor:pointer;transition:transform 0.18s;position:relative;overflow:hidden;}
+.pc:hover{transform:translateY(-2px);}
+.pc::after{content:attr(data-n);position:absolute;bottom:-6px;right:2px;font-family:'Cormorant Garamond',serif;font-size:4rem;font-weight:600;opacity:0.08;line-height:1;}
+.pc-rose{background:var(--rose-l);}
+.pc-sage{background:var(--sage-l);}
+.pc-gold{background:var(--gold-l);}
+.pc-mauve{background:var(--mauve-l);}
+.pc-icon{font-size:18px;margin-bottom:4px;}
+.pc-name{font-size:13px;font-weight:500;color:var(--ink);}
+.pc-focus{font-size:10px;color:var(--mid);margin-top:2px;}
+.pc-min{margin-top:5px;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-block;}
+.pcm-rose{background:rgba(184,92,82,0.12);color:var(--rose);}
+.pcm-sage{background:rgba(107,143,104,0.12);color:var(--sage);}
+.pcm-gold{background:rgba(176,138,58,0.12);color:var(--gold);}
+.pcm-mauve{background:rgba(138,107,154,0.12);color:var(--mauve);}
+
+/* ROTINA */
+.rotina-timeline{position:relative;padding-left:1.5rem;margin-bottom:1rem;}
+.rotina-timeline::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:1px;background:var(--border2);}
+.rt-item{position:relative;margin-bottom:1rem;}
+.rt-item::before{content:'';position:absolute;left:-1.3rem;top:5px;width:8px;height:8px;border-radius:50%;background:var(--blush);border:2px solid var(--paper);}
+.rt-time{font-size:10px;color:var(--soft);letter-spacing:0.08em;margin-bottom:2px;}
+.rt-task{font-size:13px;color:var(--ink);font-weight:400;}
+.rt-sub{font-size:11px;color:var(--soft);margin-top:1px;}
+
+/* QUOTES */
+.qcard{border-radius:16px;padding:1.3rem;text-align:center;margin-bottom:1rem;}
+.qt{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;line-height:1.6;margin-bottom:0.4rem;}
+.qa{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;}
+
+/* GLOW DESAFIOS */
+.gd-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem;}
+.gd-item{background:var(--paper);border:1px solid var(--border);border-radius:12px;padding:0.9rem 1rem;display:flex;align-items:flex-start;gap:10px;cursor:pointer;transition:all 0.18s;}
+.gd-item:hover{border-color:var(--rose-l);}
+.gd-item.ck{background:var(--sage-l);border-color:var(--sage);}
+.gd-ck{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all 0.15s;margin-top:1px;}
+.gd-item.ck .gd-ck{background:var(--sage);border-color:var(--sage);color:white;}
+.gd-t{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.gd-d{font-size:11px;color:var(--mid);}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:0.9rem;}
+.prog-top{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:4px;}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.6s ease;}
+
+/* NOTA */
+.narea{width:100%;min-height:80px;border:1px solid var(--border);border-radius:10px;padding:0.8rem;font-family:'Outfit',sans-serif;font-size:12px;color:var(--ink);background:var(--cream);resize:none;outline:none;line-height:1.6;margin-top:0.7rem;}
+.narea:focus{border-color:var(--rose);}
+.narea::placeholder{color:var(--soft);}
+.sbtn{margin-top:0.5rem;background:var(--rose);color:white;border:none;padding:8px 18px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity 0.2s;}
+.sbtn:hover{opacity:0.85;}
+
+/* REUNIAO */
+.rq{padding:0.9rem 1rem;background:var(--paper);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;}
+.rq-l{font-size:10px;color:var(--soft);margin-bottom:3px;letter-spacing:0.06em;text-transform:uppercase;}
+.rq-q{font-size:13px;color:var(--ink);line-height:1.4;margin-bottom:5px;}
+.rq-i{width:100%;border:none;border-bottom:1px solid var(--border);background:transparent;font-family:'Outfit',sans-serif;font-size:12px;color:var(--ink);padding:4px 0;outline:none;}
+.rq-i::placeholder{color:var(--soft);}
+
+/* MODAL */
+.mov{display:none;position:fixed;inset:0;background:rgba(20,16,10,0.65);z-index:100;align-items:flex-end;justify-content:center;}
+.mov.on{display:flex;}
+.mo{background:var(--cream);border-radius:20px 20px 0 0;padding:1.4rem 1.2rem 2.5rem;width:100%;max-width:480px;animation:su 0.3s ease;max-height:80vh;overflow-y:auto;}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mo-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 1.1rem;}
+.mo-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--ink);margin-bottom:0.4rem;}
+.mo-body{font-size:12px;color:var(--mid);line-height:1.6;margin-bottom:1.1rem;}
+.mo-close{background:var(--ink);color:var(--cream);border:none;padding:12px;border-radius:12px;font-size:12px;font-weight:500;cursor:pointer;width:100%;font-family:'Outfit',sans-serif;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--cream);padding:9px 18px;border-radius:20px;font-size:11px;z-index:200;transition:transform 0.3s;white-space:nowrap;}
+.toast.on{transform:translateX(-50%) translateY(0);}
+
+.afirm{border-left:2px solid var(--blush);padding:0.7rem 0.9rem;background:var(--paper);border-radius:0 10px 10px 0;margin-bottom:8px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.95rem;color:var(--mid);}
+
+/* SYNC indicator */
+.sync-dot {
+  width:6px;height:6px;border-radius:50%;
+  background:var(--sage);
+  display:inline-block;margin-right:4px;
+}
+.sync-dot.saving { background:var(--gold); animation:pulse 1s infinite; }
+.sync-dot.error { background:var(--rose); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.sync-label { font-size:10px; color:rgba(248,243,235,0.4); display:flex; align-items:center; }
+</style>
+</head>
+<body>
+
+<!-- ══════ AUTH SCREEN ══════ -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">O Meu Método · 2026</div>
+    <div class="auth-title">A mulher que<br>estou a <em>tornar-me</em></div>
+    <div class="auth-sub">Entra na tua conta ou cria uma nova para teres o teu progresso guardado em qualquer dispositivo.</div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab on" onclick="switchTab('login')">Entrar</div>
+      <div class="auth-tab" onclick="switchTab('register')">Criar conta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="auth-form" id="loginForm">
+      <div>
+        <label class="auth-label">Email</label>
+        <input class="auth-input" type="email" id="loginEmail" placeholder="o.teu@email.com" autocomplete="email">
+      </div>
+      <div>
+        <label class="auth-label">Password</label>
+        <input class="auth-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+        <div class="forgot-link" onclick="forgotPassword()" style="margin-top:6px">Esqueci-me da password</div>
+      </div>
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-success" id="loginSuccess"></div>
+      <button class="auth-btn" onclick="doLogin()" id="loginBtn">Entrar</button>
+      <div class="auth-divider">ou</div>
+      <button class="google-btn" onclick="doGoogle()">
+        <div class="google-icon"></div>
+        Continuar com Google
+      </button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-form hide" id="registerForm">
+      <div>
+        <label class="auth-label">O teu nome</label>
+        <input class="auth-input" type="text" id="regName" placeholder="Como te chamas?" autocomplete="name">
+      </div>
+      <div>
+        <label class="auth-label">Email</label>
+        <input class="auth-input" type="email" id="regEmail" placeholder="o.teu@email.com" autocomplete="email">
+      </div>
+      <div>
+        <label class="auth-label">Password</label>
+        <input class="auth-input" type="password" id="regPass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="auth-error" id="regError"></div>
+      <div class="auth-success" id="regSuccess"></div>
+      <button class="auth-btn" onclick="doRegister()" id="regBtn">Criar a minha conta</button>
+      <div class="auth-divider">ou</div>
+      <button class="google-btn" onclick="doGoogle()">
+        <div class="google-icon"></div>
+        Continuar com Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ APP ══════ -->
+<div id="app">
+  <div id="userBar">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div class="user-email" id="userEmail"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="sync-label"><div class="sync-dot" id="syncDot"></div><span id="syncLabel">guardado</span></div>
+      <button class="logout-btn" onclick="doLogout()">sair</button>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nt on" onclick="gt('inicio',this)">Início</div>
+    <div class="nt" onclick="gt('plano',this)">Plano 6 Meses</div>
+    <div class="nt" onclick="gt('desafios',this)">Desafios</div>
+    <div class="nt" onclick="gt('profissao',this)">Profissão</div>
+    <div class="nt" onclick="gt('semana',this)">Semana</div>
+    <div class="nt" onclick="gt('rotina',this)">Rotina</div>
+    <div class="nt" onclick="gt('reuniao',this)">Reunião</div>
+  </nav>
+
+  <!-- INÍCIO -->
+  <div class="pg on" id="p-inicio">
+    <div class="hero">
+      <div class="hkick">o meu método · 2026</div>
+      <h1>A mulher que<br>estou a <em>tornar-me</em></h1>
+      <div class="hsub" id="heroSub">31 anos. A descobrir a profissão, o estilo, a rotina. Um passo de cada vez.</div>
+      <div class="hstats">
+        <div class="hstat"><div class="hstat-n" id="sn1">0</div><div class="hstat-l">dias feitos</div></div>
+        <div class="hstat"><div class="hstat-n" id="sn2">0</div><div class="hstat-l">desafios</div></div>
+        <div class="hstat"><div class="hstat-n">6</div><div class="hstat-l">meses</div></div>
+        <div class="hstat"><div class="hstat-n">180</div><div class="hstat-l">dias</div></div>
+      </div>
+    </div>
+    <div class="lbl">tracker 30 dias</div>
+    <div class="tw">
+      <div class="tg" id="tg"></div>
+      <div class="tleg">
+        <div class="tleg-i"><div class="tleg-d" style="background:var(--sage)"></div>feito</div>
+        <div class="tleg-i"><div class="tleg-d" style="background:var(--gold-l);border:1px solid var(--gold)"></div>difícil</div>
+        <div class="tleg-i"><div class="tleg-d" style="background:var(--rose-l);border:1px solid var(--blush)"></div>saltei</div>
+      </div>
+    </div>
+    <div style="background:var(--ink);border-radius:16px;padding:1.2rem;margin-bottom:1rem;position:relative;overflow:hidden;">
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem">✦ desafio de hoje</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.3rem" id="dtitle">Grava 60 segundos da tua manhã</div>
+      <div style="font-size:12px;color:rgba(248,243,235,0.5)" id="ddesc">Liga a câmara, mostra o teu café, a tua rotina. Não precisa de ser bonito. É real.</div>
+      <button class="sbtn" style="margin-top:0.8rem;background:var(--gold);color:var(--ink)" onclick="completarDesafio()">✓ Fiz isto</button>
+      <button style="background:none;border:none;font-size:12px;color:rgba(248,243,235,0.35);cursor:pointer;margin-left:12px;font-family:'Outfit',sans-serif" onclick="proximoDesafio()">próximo →</button>
+    </div>
+    <div class="lbl">os 4 pilares</div>
+    <div class="pgrid2">
+      <div class="pc pc-rose" data-n="1" onclick="om('Eu 🌱','15 minutos por dia só teus. Não negociáveis. É aqui que começas a descobrir quem és.')">
+        <div class="pc-icon">🌱</div><div class="pc-name">Eu</div>
+        <div class="pc-focus">identidade · bem-estar</div>
+        <div class="pc-min pcm-rose">15 min/dia</div>
+      </div>
+      <div class="pc pc-sage" data-n="2" onclick="om('Casa & Família 🏠','Uma tarefa de cada vez. Quando és interrompida — escreves onde ficaste e continuas depois.')">
+        <div class="pc-icon">🏠</div><div class="pc-name">Casa</div>
+        <div class="pc-focus">rotina · organização</div>
+        <div class="pc-min pcm-sage">retoma sempre</div>
+      </div>
+      <div class="pc pc-gold" data-n="3" onclick="om('Descobrir & Criar ✨','Ainda não sabes a tua profissão — e tudo bem. Experimenta. Cria. Testa. 1 coisa de cada vez.')">
+        <div class="pc-icon">✨</div><div class="pc-name">Descobrir</div>
+        <div class="pc-focus">profissão · criar · testar</div>
+        <div class="pc-min pcm-gold">1 teste/semana</div>
+      </div>
+      <div class="pc pc-mauve" data-n="4" onclick="om('Construir 💜','O resultado de tudo o resto. Meses 4, 5, 6. Agora só tens de descobrir.')">
+        <div class="pc-icon">💜</div><div class="pc-name">Construir</div>
+        <div class="pc-focus">resultado · rendimento</div>
+        <div class="pc-min pcm-mauve">meses 4-6</div>
+      </div>
+    </div>
+    <div class="lbl">progressos</div>
+    <div class="card">
+      <div class="prog-wrap"><div class="prog-top"><span>Autoconhecimento</span><span id="p1v">5%</span></div><div class="prog-bar"><div class="prog-fill" id="p1f" style="width:5%;background:var(--rose)"></div></div></div>
+      <div class="prog-wrap"><div class="prog-top"><span>Rotina pessoal</span><span id="p2v">0%</span></div><div class="prog-bar"><div class="prog-fill" id="p2f" style="width:0%;background:var(--sage)"></div></div></div>
+      <div class="prog-wrap"><div class="prog-top"><span>Descobrir profissão</span><span id="p3v">0%</span></div><div class="prog-bar"><div class="prog-fill" id="p3f" style="width:0%;background:var(--gold)"></div></div></div>
+      <div class="prog-wrap" style="margin:0"><div class="prog-top"><span>Estilo próprio</span><span id="p4v">0%</span></div><div class="prog-bar"><div class="prog-fill" id="p4f" style="width:0%;background:var(--mauve)"></div></div></div>
+    </div>
+    <div class="qcard" style="background:var(--rose-l)">
+      <div class="qt" style="color:var(--rose)">"Não descobres quem és a pensar. Descobres a fazer, a errar, a tentar outra vez."</div>
+      <div class="qa" style="color:var(--rose)">o teu método · dia 1</div>
+    </div>
+  </div>
+
+  <!-- PLANO -->
+  <div class="pg" id="p-plano">
+    <div class="lbl" style="margin-top:0.3rem">seleciona o mês</div>
+    <div class="mes-tabs" id="mesTabs"></div>
+    <div id="mesContents"></div>
+  </div>
+
+  <!-- DESAFIOS -->
+  <div class="pg" id="p-desafios">
+    <div class="lbl" style="margin-top:0.3rem">escolhe o teu modo</div>
+    <div class="modo-grid">
+      <div class="modo-card glow" onclick="openModo('glow')"><div class="modo-icon">✨</div><div class="modo-name">Glow Up</div><div class="modo-desc">Exterior + interior.</div><div class="modo-dur dur-rose">21 dias</div></div>
+      <div class="modo-card cave" onclick="openModo('cave')"><div class="modo-icon">🐚</div><div class="modo-name light">Modo Caverna</div><div class="modo-desc light">Foco total. Silêncio.</div><div class="modo-dur dur-light">7 dias</div></div>
+      <div class="modo-card body" onclick="openModo('body')"><div class="modo-icon">🌿</div><div class="modo-name">Corpo Saudável</div><div class="modo-desc">30 dias de hábitos.</div><div class="modo-dur dur-teal">30 dias</div></div>
+      <div class="modo-card mente" onclick="openModo('mente')"><div class="modo-icon">🧠</div><div class="modo-name">Mente Clara</div><div class="modo-desc">Organizar o dentro.</div><div class="modo-dur dur-mauve">14 dias</div></div>
+    </div>
+    <div class="desafio-detail" id="dd-glow">
+      <div class="dd-tag">✦ glow up · 21 dias</div><div class="dd-title">Aparecer melhor para ti</div>
+      <div class="dd-week" id="glow-week"></div>
+      <div class="dd-tasks">
+        <div class="dd-task"><div class="dd-bullet">◦</div>Skincare manhã e noite — limpeza, sérum, hidratante + SPF</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Beber 2L de água por dia</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Movimento 20 min — caminhar, dançar, alongar</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Vestir-te com intenção — não o primeiro que encontras</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>1 coisa que te faz sentir bem por dia</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Dormir antes das 23h</div>
+      </div>
+      <button class="close-btn" onclick="closeModo('glow')">fechar</button>
+    </div>
+    <div class="desafio-detail" id="dd-cave">
+      <div class="dd-tag">🐚 modo caverna · 7 dias</div><div class="dd-title">Silêncio para te encontrares</div>
+      <div class="dd-week" id="cave-week"></div>
+      <div class="dd-tasks">
+        <div class="dd-task"><div class="dd-bullet">◦</div>Sem redes sociais nas primeiras 2h do dia</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Escreves 1 página por dia — o que pensas, o que sentes</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Lês 20 min por dia</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Uma caminhada por dia em silêncio</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>À noite: 3 perguntas — o que aprendi? senti? quero amanhã?</div>
+      </div>
+      <button class="close-btn" onclick="closeModo('cave')">fechar</button>
+    </div>
+    <div class="desafio-detail" id="dd-body">
+      <div class="dd-tag">🌿 corpo saudável · 30 dias</div><div class="dd-title">De volta aos hábitos saudáveis</div>
+      <div class="dd-week" id="body-week"></div>
+      <div class="dd-tasks">
+        <div class="dd-task"><div class="dd-bullet">◦</div><div><strong style="color:var(--cream)">Semana 1:</strong> Acordar 30min mais cedo · Dormir antes das 23h · Água + exercício 3x</div></div>
+        <div class="dd-task"><div class="dd-bullet">◦</div><div><strong style="color:var(--cream)">Semana 2:</strong> Shot de manhã · Almoço equilibrado · Chá em vez de açúcar</div></div>
+        <div class="dd-task"><div class="dd-bullet">◦</div><div><strong style="color:var(--cream)">Semana 3:</strong> Exercício 4x · Sem açúcar adicionado · Jantar antes das 20h</div></div>
+        <div class="dd-task"><div class="dd-bullet">◦</div><div><strong style="color:var(--cream)">Semana 4:</strong> Tudo consolidado · Cardio extra 2x · Avalia como te sentes</div></div>
+      </div>
+      <button class="close-btn" onclick="closeModo('body')">fechar</button>
+    </div>
+    <div class="desafio-detail" id="dd-mente">
+      <div class="dd-tag">🧠 mente clara · 14 dias</div><div class="dd-title">Organizar o que está dentro</div>
+      <div class="dd-week" id="mente-week"></div>
+      <div class="dd-tasks">
+        <div class="dd-task"><div class="dd-bullet">◦</div>Brain dump diário — escreves tudo o que está na tua cabeça (5 min)</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Uma coisa por vez — proíbes multitasking durante 14 dias</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Sem notificações na primeira hora do dia</div>
+        <div class="dd-task"><div class="dd-bullet">◦</div>Meditação guiada 5 min — só 5, todos os dias</div>
+      </div>
+      <button class="close-btn" onclick="closeModo('mente')">fechar</button>
+    </div>
+    <div class="lbl" style="margin-top:0.5rem">desafios livres</div>
+    <div class="gd-list" id="gdList"></div>
+  </div>
+
+  <!-- PROFISSÃO -->
+  <div class="pg" id="p-profissao">
+    <div class="card" style="background:var(--ink);border-color:transparent">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);font-style:italic;margin-bottom:6px">"Não descobres a profissão dos teus sonhos a pensar nela. Descobres a experimentar."</div>
+      <div style="font-size:11px;color:rgba(248,243,235,0.4)">Aos 31 anos não é tarde — é experiência.</div>
+    </div>
+    <div class="lbl">áreas para explorar</div>
+    <div class="prof-grid" id="profGrid"></div>
+    <div class="lbl">método de descoberta</div>
+    <div class="card"><div class="ct">Como descobres em 90 dias</div><div id="metodoDes"></div></div>
+  </div>
+
+  <!-- SEMANA -->
+  <div class="pg" id="p-semana">
+    <div class="lbl" style="margin-top:0.3rem">a tua semana tipo</div>
+    <div class="card" id="semCard"></div>
+    <div class="lbl">desafio desta semana</div>
+    <div style="background:var(--ink);border-radius:16px;padding:1.2rem;margin-bottom:1rem">
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem">✦ foca-te em</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--cream);margin-bottom:0.3rem" id="semDesTitle">Experimenta 1 área profissional nova</div>
+      <div style="font-size:12px;color:rgba(248,243,235,0.5)" id="semDesDesc">Escolhe uma das áreas na aba Profissão e passa 15 min a explorar.</div>
+      <button class="sbtn" style="margin-top:0.8rem" onclick="nextSemDes()">próximo →</button>
+    </div>
+    <div class="lbl">nota do dia</div>
+    <div class="card">
+      <div style="font-size:12px;color:var(--mid)">Hoje senti-me mais eu quando...</div>
+      <textarea class="narea" id="nota" placeholder="escreve aqui — 1 frase é suficiente"></textarea>
+      <br><button class="sbtn" onclick="saveNota()">guardar</button>
+    </div>
+  </div>
+
+  <!-- ROTINA -->
+  <div class="pg" id="p-rotina">
+    <div class="lbl" style="margin-top:0.3rem">a tua rotina real · 30–60 min/dia</div>
+    <div class="card"><div class="ct">Manhã</div><div class="rotina-timeline" id="rt-manha"></div></div>
+    <div class="card"><div class="ct">Durante o dia</div><div class="rotina-timeline" id="rt-dia"></div></div>
+    <div class="card"><div class="ct">Noite</div><div class="rotina-timeline" id="rt-noite"></div></div>
+    <div class="lbl">cuidados pessoais</div>
+    <div id="cuidadosWrap"></div>
+    <div class="qcard" style="background:var(--sage-l)">
+      <div class="qt" style="color:var(--sage)">"Uma rotina simples todos os dias vale mais que uma rotina perfeita que abandonas."</div>
+    </div>
+  </div>
+
+  <!-- REUNIÃO -->
+  <div class="pg" id="p-reuniao">
+    <div class="lbl" style="margin-top:0.3rem">reunião semanal contigo</div>
+    <div class="card"><div class="ct">Como fazer</div><div class="cs">30 min, uma vez por semana. Um café quente, silêncio, e estas perguntas.</div></div>
+    <div id="rqWrap"></div>
+    <div class="lbl">a mulher que quero ser</div>
+    <div class="card" id="visaoCard"></div>
+    <div class="lbl">afirmações</div>
+    <div id="afirmWrap"></div>
+    <div class="qcard" style="background:var(--mauve-l)">
+      <div class="qt" style="color:var(--mauve)">"Ninguém vai construir a tua vida por ti. Mas não tens de fazê-lo sozinha de uma vez."</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mov" id="mov" onclick="cmov(event)">
+  <div class="mo"><div class="mo-handle"></div><div class="mo-title" id="moT"></div><div class="mo-body" id="moB"></div><button class="mo-close" onclick="cm()">fechar</button></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════
+// ⚠️  SUBSTITUI AQUI AS TUAS CHAVES
+// ════════════════════════════════════════
+const SUPABASE_URL = 'COLOCA_AQUI_O_TUA_URL';
+const SUPABASE_ANON_KEY = 'COLOCA_AQUI_A_TUA_ANON_KEY';
+// ════════════════════════════════════════
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let currentUser = null;
+let saveTimeout = null;
+
+// ─── AUTH ───
+async function initAuth() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) {
+    showApp(session.user);
+  } else {
+    document.getElementById('authScreen').style.display = 'flex';
+  }
+  sb.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) showApp(session.user);
+    else showAuthScreen();
+  });
+}
+
+function showApp(user) {
+  currentUser = user;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('userBar').classList.add('on');
+  document.getElementById('app').classList.add('on');
+  const email = user.email || '';
+  const name = user.user_metadata?.full_name || user.user_metadata?.name || '';
+  document.getElementById('userEmail').textContent = name || email;
+  document.getElementById('userAvatar').textContent = (name || email).charAt(0).toUpperCase();
+  initApp();
+  loadUserData();
+}
+
+function showAuthScreen() {
+  currentUser = null;
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('userBar').classList.remove('on');
+  document.getElementById('app').classList.remove('on');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('on', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
+  document.getElementById('loginForm').classList.toggle('hide', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hide', tab !== 'register');
+  clearErrors();
+}
+
+function clearErrors() {
+  ['loginError','loginSuccess','regError','regSuccess'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('on'); el.textContent = '';
+  });
+}
+
+function showError(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.add('on'); }
+function showSuccess(id, msg) { const el=document.getElementById(id); el.textContent=msg; el.classList.add('on'); }
+
+async function doLogin() {
+  clearErrors();
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (!email || !pass) return showError('loginError','Preenche o email e a password.');
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'A entrar...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Entrar';
+  if (error) showError('loginError', error.message === 'Invalid login credentials' ? 'Email ou password incorretos.' : error.message);
+}
+
+async function doRegister() {
+  clearErrors();
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  if (!name || !email || !pass) return showError('regError','Preenche todos os campos.');
+  if (pass.length < 6) return showError('regError','A password tem de ter pelo menos 6 caracteres.');
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true; btn.textContent = 'A criar conta...';
+  const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  btn.disabled = false; btn.textContent = 'Criar a minha conta';
+  if (error) showError('regError', error.message);
+  else showSuccess('regSuccess', '✓ Conta criada! Verifica o teu email para confirmar.');
+}
+
+async function doGoogle() {
+  const { error } = await sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) showToast('Erro ao entrar com Google');
+}
+
+async function forgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) return showError('loginError','Escreve o teu email primeiro.');
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  if (error) showError('loginError', error.message);
+  else showSuccess('loginSuccess','✓ Email enviado! Verifica a tua caixa de entrada.');
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  showToast('Até já! 👋');
+}
+
+// ─── DATA PERSISTENCE ───
+async function saveUserData() {
+  if (!currentUser) return;
+  setSyncStatus('saving');
+  const data = {
+    tracker: dayStates,
+    desafio_idx: desafioIdx,
+    desafios_done: desafiosDone,
+    sem_des_idx: semDesIdx,
+    nota: document.getElementById('nota')?.value || '',
+    rq_inputs: Array.from(document.querySelectorAll('.rq-i')).map(el => el.value),
+    sem_checks: Object.fromEntries(semanaData.map((_,i) => [i, document.getElementById('sck'+i)?.classList.contains('on') || false])),
+    plano_checks: Object.fromEntries(Array.from(document.querySelectorAll('.si-check')).map(el => [el.id, el.classList.contains('ck')])),
+    glow_checks: Object.fromEntries(Array.from(document.querySelectorAll('[id^="gd"]')).map(el => [el.id, el.textContent === '✓'])),
+  };
+  const { error } = await sb.from('user_data').upsert({
+    user_id: currentUser.id,
+    data: data,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id' });
+  setSyncStatus(error ? 'error' : 'saved');
+}
+
+async function loadUserData() {
+  if (!currentUser) return;
+  setSyncStatus('saving');
+  const { data, error } = await sb.from('user_data').select('data').eq('user_id', currentUser.id).single();
+  if (error || !data) { setSyncStatus('saved'); return; }
+  const d = data.data;
+  if (!d) { setSyncStatus('saved'); return; }
+  // tracker
+  if (d.tracker) {
+    Object.entries(d.tracker).forEach(([i, state]) => {
+      if (state === 0) return;
+      dayStates[parseInt(i)] = state;
+      const el = document.querySelector(`[data-tidx="${i}"]`);
+      if (!el) return;
+      const icons = [null,'✓','~','×'];
+      const cls = ['td'+(i==1?' today':''),'td done','td hard','td skip'];
+      el.className = cls[state];
+      el.innerHTML = `<span>${icons[state]}</span>`;
+    });
+    updateStats();
+  }
+  // desafio
+  if (d.desafio_idx !== undefined) { desafioIdx = d.desafio_idx; renderDesafio(); }
+  if (d.desafios_done !== undefined) { desafiosDone = d.desafios_done; document.getElementById('sn2').textContent = desafiosDone; }
+  if (d.sem_des_idx !== undefined) semDesIdx = d.sem_des_idx;
+  // nota
+  if (d.nota && document.getElementById('nota')) document.getElementById('nota').value = d.nota;
+  // semana checks
+  if (d.sem_checks) Object.entries(d.sem_checks).forEach(([i, on]) => {
+    if (!on) return;
+    const el = document.getElementById('sck'+i);
+    if (el) { el.className='sck on'; el.textContent='✓'; }
+  });
+  // plano checks
+  if (d.plano_checks) Object.entries(d.plano_checks).forEach(([id, on]) => {
+    if (!on) return;
+    const el = document.getElementById(id);
+    if (el) { el.className='si-check ck'; el.textContent='✓'; }
+  });
+  // glow checks
+  if (d.glow_checks) Object.entries(d.glow_checks).forEach(([id, on]) => {
+    if (!on) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = '✓';
+    const item = el.closest('.gd-item');
+    if (item) item.classList.add('ck');
+  });
+  setSyncStatus('saved');
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(saveUserData, 2000);
+}
+
+function setSyncStatus(status) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (status==='saving'?' saving':status==='error'?' error':'');
+  label.textContent = status==='saving'?'a guardar...':status==='error'?'erro!':'guardado';
+}
+
+// ─── DATA ───
+const meses = [
+  { n:'1', t:'Acordar', sub:'Foco: Autoconhecimento', desc:'Descobrir o que és, o que te dá energia, o que te drena. Sem pressão de resultados.', foco:'Quem sou eu?',
+    semanas:[
+      { t:'Semana 1 — Observar', its:['Escreve 1 frase por dia: "hoje senti-me mais eu quando..."','Faz o desafio Modo Caverna (7 dias)','Lista 10 coisas que te interessam sem filtro','Começa a rotina de pele básica','Dorme antes das 23h'] },
+      { t:'Semana 2 — Explorar', its:['Escolhe 2 áreas profissionais e pesquisa 15 min cada','Escreve o que te imaginaste a fazer','Faz a lista do que gastas tempo a ver online','Cria a pasta "A minha visão" no telemóvel','15 min de movimento todos os dias'] },
+      { t:'Semana 3 — Sentir', its:['Qual das áreas te deu mais energia?','Começa 1 desafio Glow Up','Faz a tua primeira reunião contigo mesma','Escreve 3 palavras que queres que te descrevam','Experimenta 1 novo estilo de roupa'] },
+      { t:'Semana 4 — Consolidar', its:['Revisão do mês: o que descobriste sobre ti?','Qual área profissional queres continuar?','Avalia a tua rotina — o que ficou?','Escreve a tua visão de 6 meses','Celebra — completaste o primeiro mês'] },
+    ]
+  },
+  { n:'2', t:'Testar', sub:'Foco: Experimentação', desc:'Testar as áreas que descobriste. Sem compromisso — só sentindo.', foco:'O que me chama?',
+    semanas:[
+      { t:'Semana 5 — Mergulha', its:['Dedica 20 min por dia à área escolhida','Começa 1 curso gratuito ou vê 5 vídeos','Cria um espaço físico para o teu trabalho','Continua o Glow Up','Água 2L todos os dias'] },
+      { t:'Semana 6 — Cria algo pequeno', its:['Faz 1 coisa concreta — texto, vídeo, plano','Não precisas de publicar. Só criar.','Escreve o que sentiste ao criar','Partilha com 1 pessoa de confiança','Ajusta a tua rotina'] },
+      { t:'Semana 7 — Testa outra área', its:['Se a primeira não te encantou, testa a segunda','20 min por dia de exploração','Compara as duas — qual te dá mais energia?','Desafio Corpo Saudável (semanas 1 e 2)','Reunião contigo: o que quero continuar?'] },
+      { t:'Semana 8 — Decide', its:['Escolhes 1 área para os próximos 4 meses','Não é para sempre — é para agora','Escreve o teu "porquê"','Cria o teu plano básico para o mês 3','Celebra: já sabes mais sobre ti'] },
+    ]
+  },
+  { n:'3', t:'Aprender', sub:'Foco: Skill real', desc:'Aprender a skill principal da área que escolheste.', foco:'Como faço isto bem?',
+    semanas:[
+      { t:'Semana 9 — Estuda', its:['Define a skill principal da tua área','Encontra 3 recursos: curso, livro, pessoa','30 min por dia a aprender','Desafio Corpo Saudável (semanas 3 e 4)','Escreve o que aprendeste'] },
+      { t:'Semana 10 — Pratica', its:['Implementas o que aprendeste','Crias 3 coisas pequenas','Pedes feedback a alguém','Ajustas com base no feedback','Desafio Mente Clara (14 dias)'] },
+      { t:'Semana 11 — Aprofunda', its:['Vai mais fundo na skill','Identifica o que falta aprender','Observa pessoas que fazem o que queres','Estilo: faz o teu guarda-roupa cápsula','Reunião: que versão de mim está a emergir?'] },
+      { t:'Semana 12 — Apresenta', its:['Crias algo que podes mostrar','Publicas ou partilhas','Recolhes reação e aprendes','Fim do mês 3: tens uma direção clara'] },
+    ]
+  },
+  { n:'4', t:'Construir', sub:'Foco: Base real', desc:'Construir as bases do teu projeto ou carreira.', foco:'Como construo isto?',
+    semanas:[
+      { t:'Semana 13 — Define', its:['O que exatamente ofereces?','Para quem é?','Como chegam a ti?','Cria o teu perfil base','Escreve a tua proposta em 1 frase'] },
+      { t:'Semana 14 — Primeiros passos', its:['Faz a tua primeira oferta — mesmo gratuita','Fala com 3 pessoas sobre o que construis','Ajusta com base no que ouviste','Define o que precisas aprender ainda','Tens o teu tempo de trabalho definido?'] },
+      { t:'Semana 15 — Consiste', its:['Publica 3x na semana','Documenta o teu processo','Desafio Glow Up — mereces aparecer bem','Faz 1 colaboração pequena','O que está a funcionar?'] },
+      { t:'Semana 16 — Escala pequeno', its:['Define o teu primeiro objetivo com número','Foca-te só nesse número','Descarta o que não contribui','Reunião mensal: o que mudou em mim?','Celebra: já tens um projeto real'] },
+    ]
+  },
+  { n:'5', t:'Crescer', sub:'Foco: Visibilidade', desc:'Crescer o que construíste. Mais pessoas a saber.', foco:'Como chego a mais pessoas?',
+    semanas:[
+      { t:'Semana 17 — Audiência', its:['Define onde está o teu público','Cria conteúdo consistente num único lugar','Responde a todos os comentários','Desafio Mente Clara','Documenta 1 resultado'] },
+      { t:'Semana 18 — Colabora', its:['Identifica 3 pessoas para colaborar','Propõe algo simples e com valor','Faz 1 live ou evento pequeno','Avalia o que cresce mais rápido','Ajusta a estratégia'] },
+      { t:'Semana 19 — Monetiza', its:['Define o teu primeiro produto ou serviço pago','Pode ser simples: consultoria, template, workshop','Define o preço com lógica','Oferece a 5 pessoas','Acredita que mereces ser paga'] },
+      { t:'Semana 20 — Consolida', its:['Revisão: o que funciona?','Sistematiza o que funciona','Delega ou simplifica o que te drena','Reunião: estou a tornar-me a mulher que quero ser?','Celebra com intenção'] },
+    ]
+  },
+  { n:'6', t:'Sou ela', sub:'Foco: Ser a versão', desc:'O último mês. Consolidar, celebrar, definir o próximo ciclo.', foco:'Quem me tornei?',
+    semanas:[
+      { t:'Semana 21 — Olha para trás', its:['Lê tudo o que escreveste nos últimos 5 meses','Quem eras no dia 1? Quem és agora?','Lista 10 coisas que mudaram','Lista 5 que ainda queres mudar','Celebra cada uma das 10'] },
+      { t:'Semana 22 — Organiza', its:['Sistematiza o teu projeto','O que precisa de ser mais simples?','O que precisa de crescer?','Documenta o teu processo completo','Define 3 metas para o próximo ciclo'] },
+      { t:'Semana 23 — Aparece', its:['Partilha a tua história de 6 meses','Não precisas de ser perfeita. Sê real.','Inspira 1 mulher com a tua transformação','Desafio Glow Up — entra no próximo ciclo bem','Define o teu novo "normal"'] },
+      { t:'Semana 24 — Próximo ciclo', its:['Escreve a tua visão para os próximos 6 meses','Mais ambiciosa — cresceste','Define 1 grande meta e 3 hábitos','Partilha com alguém — torna real','Fecha este caderno. Abre o próximo.'] },
+    ]
+  },
+];
+
+const profissoes = [
+  { i:'✍️', n:'Criadora de Conteúdo', m:'high', d:'Criar conteúdo sobre a tua vida, processo, wellness, maternidade. Autêntica. Real.', tags:['Instagram','Reels','Wellness','Maternidade'], steps:['Escolhe 1 tema: maternidade especial, wellness, transformação','Cria 3 vídeos sobre esse tema','Publica 3x por semana','Em 3-6 meses tens audiência real','Monetiza com marcas, produtos'] },
+  { i:'🌿', n:'Coach / Mentora de Mães', m:'high', d:'Com a tua experiência de mãe de filhos com necessidades especiais, tens algo único. Isso é expertise real.', tags:['Maternidade','Autismo','TDAH','Apoio'], steps:['Documenta o que já sabes','Faz um curso de coaching online','Começa com sessões gratuitas','Define o teu nicho: mães de crianças com NEE','Cria o teu primeiro programa pago'] },
+  { i:'📱', n:'Social Media Manager', m:'med', d:'Gerir redes sociais de pequenas empresas. Aprendes em 2-3 meses e trabalhas de casa.', tags:['Redes Sociais','Freelance','Casa','Flexível'], steps:['Faz curso de social media (Domestika, YouTube)','Cria portfólio com 3 contas fictícias','Começa com 1-2 clientes a preço acessível','Aumenta preço com experiência','Em 6 meses tens rendimento real'] },
+  { i:'🎨', n:'Produtos Digitais', m:'med', d:'Criar templates, guias, planners, ebooks para vender. Faz uma vez, vende para sempre.', tags:['Canva','Etsy','Passivo','Digital'], steps:['Identifica o que sabes que outras precisam','Cria 3 produtos no Canva','Vende no Etsy ou Instagram','Optimiza o que vende mais','Em 6 meses tens rendimento passivo'] },
+  { i:'📸', n:'Fotografia / Edição', m:'med', d:'Fotografia de família, maternidade. Ou edição de conteúdo para outras criadoras.', tags:['Fotografia','Edição','Arte','Família'], steps:['Pratica com o telemóvel que tens','Faz fotografias gratuitas para 3 pessoas','Aprende edição no Lightroom','Cria portfólio','Define o teu nicho'] },
+];
+
+const glowDes = [
+  { t:'Brain dump — esvazia a cabeça', d:'10 min a escrever tudo. Sem filtro. Só soltar.' },
+  { t:'Organiza 1 divisão da casa', d:'Só uma. 20 minutos. Espaço organizado = mente calma.' },
+  { t:'Maquilha-te só para ti', d:'Não para sair. Para te veres bonita ao espelho.' },
+  { t:'Escreve uma carta para ti do futuro', d:'Daqui a 6 meses. O que queres que ela te diga?' },
+  { t:'Faz uma lista do que te drena', d:'Pessoas, hábitos, situações que te tiram energia.' },
+  { t:'Cria o teu moodboard de vida', d:'No Pinterest ou numa pasta. O que queres sentir, ter, ser.' },
+  { t:'Passa 1h sem telemóvel', d:'Lê, caminha, cozinha. Sem ecrã.' },
+  { t:'Diz não a 1 coisa esta semana', d:'Algo que disseste sim por obrigação.' },
+];
+
+const semanaData = [
+  { d:'Seg', t:'Intenção da semana — 1 frase', tag:'eu', cl:'tag-eu' },
+  { d:'Ter', t:'Explora 1 área profissional — 15 min', tag:'descobrir', cl:'tag-criar' },
+  { d:'Qua', t:'Aprender algo — curso, vídeo, livro', tag:'aprender', cl:'tag-aprender' },
+  { d:'Qui', t:'Cria algo pequeno — escreve, faz, produz', tag:'criar', cl:'tag-criar' },
+  { d:'Sex', t:'1 coisa só para ti — sem justificação', tag:'eu', cl:'tag-eu' },
+  { d:'Sáb', t:'Movimento + cuidar do corpo', tag:'corpo', cl:'tag-corp' },
+  { d:'Dom', t:'Reunião contigo — o que ficou? o que retomo?', tag:'reflexão', cl:'tag-eu' },
+];
+
+const semDesList = [
+  { t:'Experimenta 1 área profissional nova', d:'Escolhe uma das áreas na aba Profissão e passa 15 min a explorar.' },
+  { t:'Cria 1 coisa sem publicar', d:'Um texto, um vídeo, um esboço. Só para sentires o processo.' },
+  { t:'Fala com 1 pessoa sobre o que estás a construir', d:'Torna real ao dizer em voz alta.' },
+  { t:'Faz 1 coisa atrasada há mais de 2 semanas', d:'Só uma. Até ao fim.' },
+  { t:'Lê 1 capítulo de um livro que te inspire', d:'Sobre mulheres que mudaram de vida, wellness, a tua área.' },
+];
+
+const rotinaData = {
+  manha:[
+    { time:'Assim que acordas', task:'Água + 2 min de silêncio', sub:'Antes do telemóvel.' },
+    { time:'5 min', task:'Intenção do dia — 1 frase', sub:'"Hoje quero sentir-me..."' },
+    { time:'10 min', task:'Movimento ou alongar', sub:'Em casa, onde for.' },
+    { time:'5 min', task:'Skincare manhã', sub:'Limpeza + hidratante + SPF.' },
+  ],
+  dia:[
+    { time:'15-20 min', task:'O teu tempo de "Eu"', sub:'Aprender, criar, explorar. Com ponto de retoma sempre escrito.' },
+    { time:'Quando és interrompida', task:'Escreve onde ficaste', sub:'"Fiquei aqui." Fecha sem culpa.' },
+    { time:'À tarde', task:'Água + snack saudável', sub:'O corpo precisa.' },
+  ],
+  noite:[
+    { time:'Antes de dormir', task:'Skincare noite', sub:'Limpeza + sérum + creme.' },
+    { time:'5 min', task:'1 frase no diário', sub:'"Hoje senti-me mais eu quando..."' },
+    { time:'2 min', task:'Preparar amanhã', sub:'Roupa + 1 prioridade.' },
+    { time:'Antes das 23h', task:'Dormir', sub:'É o teu combustível.' },
+  ],
+};
+
+const reuniaoQs = [
+  { l:'Olha para trás', q:'O que correu bem esta semana?', ph:'mesmo que pequeno...' },
+  { l:'Sê honesta', q:'O que não fiz e queria ter feito?', ph:'sem julgamento...' },
+  { l:'Olha para a frente', q:'O que quero que aconteça na próxima semana?', ph:'1-3 coisas...' },
+  { l:'Profissão', q:'Que área me chamou mais atenção?', ph:'o que observaste...' },
+  { l:'A mulher que quero ser', q:'Que versão de mim apareceu esta semana?', ph:'uma qualidade...' },
+  { l:'O teu pedido', q:'Do que precisas agora?', ph:'descanso? apoio? tempo?...' },
+];
+
+const afirmacoes = [
+  'Mereço investir em mim.',
+  'Descobrir a minha profissão aos 31 anos é coragem, não atraso.',
+  'O meu processo é válido — mesmo que lento e imperfeito.',
+  'Ser mãe e ter identidade própria não é contradição.',
+  'Cuido dos outros melhor quando cuido de mim primeiro.',
+  'Tenho o suficiente para começar agora.',
+];
+
+const desafiosList = [
+  { t:'Grava 60 segundos da tua manhã', d:'Liga a câmara, mostra o teu café, a tua rotina. É real e isso é suficiente.' },
+  { t:'Escreve 3 coisas que te interessam sem filtro', d:'Não o que "deves" querer. O que genuinamente te chama.' },
+  { t:'Faz uma "reunião contigo mesma" de 15 min', d:'Senta-te, um café, e responde: o que correu bem? o que quero?' },
+  { t:'Identifica o teu estilo em 3 palavras', d:'Não o que usas agora — o que sentes quando vês alguém e pensas "quero vestir assim".' },
+  { t:'Faz 10 minutos de movimento', d:'Caminhar, dançar, alongar. É sobre sentires o corpo acordado.' },
+  { t:'Grava um vídeo falando para a câmara', d:'Conta 1 coisa do teu dia. Não publicas. É só treino.' },
+  { t:'Cria uma pasta "A minha visão" no telemóvel', d:'Guarda fotos, frases, estilos — o que queres sentir e ser.' },
+  { t:'Lê 10 páginas de qualquer livro', d:'Não importa o livro. Importa o hábito.' },
+  { t:'Faz 1 tarefa da casa que tens atrasada', d:'Só 1. Feita até ao fim.' },
+  { t:'Escreve porque queres mudar a tua vida', d:'Uma frase honesta. Guarda para os dias difíceis.' },
+];
+
+// ─── STATE ───
+const dayStates = {};
+let desafioIdx = 0;
+let desafiosDone = 0;
+let semDesIdx = 0;
+let appInited = false;
+
+// ─── APP INIT ───
+function initApp() {
+  if (appInited) return;
+  appInited = true;
+  renderTracker();
+  renderDesafio();
+  renderPlano();
+  renderGlowDes();
+  renderProfissao();
+  renderSemana();
+  renderRotina();
+  renderReuniao();
+}
+
+// ─── TRACKER ───
+function renderTracker() {
+  const g = document.getElementById('tg');
+  if (g.children.length > 0) return;
+  const days = ['S','T','Q','Q','S','S','D'];
+  for (let i=1; i<=30; i++) {
+    dayStates[i] = 0;
+    const d = document.createElement('div');
+    d.className = 'td'+(i===1?' today':'');
+    d.dataset.tidx = i;
+    d.innerHTML = `<span>${i}</span><span class="td-day">${days[(i-1)%7]}</span>`;
+    d.onclick = () => {
+      dayStates[i] = (dayStates[i]+1)%4;
+      const cls=['td'+(i===1?' today':''),'td done','td hard','td skip'];
+      const icons=[null,'✓','~','×'];
+      d.className = cls[dayStates[i]];
+      d.innerHTML = dayStates[i]>0 ? `<span>${icons[dayStates[i]]}</span>` : `<span>${i}</span><span class="td-day">${days[(i-1)%7]}</span>`;
+      updateStats();
+      scheduleSave();
+    };
+    g.appendChild(d);
+  }
+}
+
+function updateStats() {
+  const done = Object.values(dayStates).filter(v=>v===1||v===2).length;
+  document.getElementById('sn1').textContent = done;
+}
+
+function renderDesafio() {
+  const d = desafiosList[desafioIdx % desafiosList.length];
+  document.getElementById('dtitle').textContent = d.t;
+  document.getElementById('ddesc').textContent = d.d;
+}
+
+function completarDesafio() {
+  desafiosDone++;
+  document.getElementById('sn2').textContent = desafiosDone;
+  showToast('🔥 Desafio feito!');
+  desafioIdx = (desafioIdx+1) % desafiosList.length;
+  setTimeout(renderDesafio, 500);
+  scheduleSave();
+}
+
+function proximoDesafio() {
+  desafioIdx = (desafioIdx+1) % desafiosList.length;
+  renderDesafio();
+}
+
+// ─── PLANO ───
+function renderPlano() {
+  const tabs = document.getElementById('mesTabs');
+  const contents = document.getElementById('mesContents');
+  if (tabs.children.length > 0) return;
+  meses.forEach((m,i) => {
+    const tab = document.createElement('div');
+    tab.className = 'mes-tab'+(i===0?' on':'');
+    tab.textContent = 'Mês '+m.n;
+    tab.onclick = () => {
+      document.querySelectorAll('.mes-tab').forEach(t=>t.classList.remove('on'));
+      document.querySelectorAll('.mes-content').forEach(c=>c.classList.remove('on'));
+      tab.classList.add('on');
+      document.getElementById('mc'+i).classList.add('on');
+    };
+    tabs.appendChild(tab);
+    const mc = document.createElement('div');
+    mc.className = 'mes-content'+(i===0?' on':'');
+    mc.id = 'mc'+i;
+    mc.innerHTML = `<div class="mes-header"><div class="mes-num">${m.n}</div><div class="mes-title">${m.t}</div><div class="mes-desc">${m.desc}</div><div class="mes-foco">${m.foco}</div></div>`;
+    m.semanas.forEach((s,si) => {
+      const isOpen = si===0&&i===0;
+      const sb2 = document.createElement('div');
+      sb2.className = 'sem-block';
+      sb2.innerHTML = `
+        <div class="sem-header" onclick="toggleSem('sb${i}_${si}')">
+          <div class="sem-n">${si+1+(i*4)}</div>
+          <div class="sem-title">${s.t}</div>
+          <div class="sem-arr ${isOpen?'op':''}" id="sa${i}_${si}">▼</div>
+        </div>
+        <div class="sem-body ${isOpen?'op':''}" id="sb${i}_${si}">
+          ${s.its.map((it,ii)=>`<div class="sem-item"><div class="si-check" id="sc${i}_${si}_${ii}" onclick="event.stopPropagation();toggleCheck('sc${i}_${si}_${ii}')"></div>${it}</div>`).join('')}
+        </div>`;
+      mc.appendChild(sb2);
+    });
+    contents.appendChild(mc);
+  });
+}
+
+function toggleSem(id) {
+  const b=document.getElementById(id);
+  const parts=id.replace('sb','').split('_');
+  const a=document.getElementById('sa'+parts[0]+'_'+parts[1]);
+  const isOpen=b.classList.contains('op');
+  b.className='sem-body'+(isOpen?'':' op');
+  a.className='sem-arr'+(isOpen?'':' op');
+}
+
+function toggleCheck(id) {
+  const el=document.getElementById(id);
+  const on=el.classList.contains('ck');
+  el.className='si-check'+(on?'':' ck');
+  el.textContent=on?'':'✓';
+  if (!on) showToast('✓ feito!');
+  scheduleSave();
+}
+
+// ─── MODOS ───
+function openModo(id) {
+  document.querySelectorAll('.desafio-detail').forEach(d=>d.classList.remove('on'));
+  document.getElementById('dd-'+id).classList.add('on');
+  renderModoWeek(id);
+  document.getElementById('dd-'+id).scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeModo(id) { document.getElementById('dd-'+id).classList.remove('on'); }
+function renderModoWeek(id) {
+  const days=['S','T','Q','Q','S','S','D'];
+  const w=document.getElementById(id+'-week');
+  if (!w||w.children.length>0) return;
+  days.forEach(d=>{
+    const di=document.createElement('div');
+    di.className='dd-day';
+    di.innerHTML=`<div class="dd-dname">${d}</div><div class="dd-circle" onclick="this.classList.toggle('ck');this.textContent=this.classList.contains('ck')?'✓':'';scheduleSave()"></div>`;
+    w.appendChild(di);
+  });
+}
+
+// ─── GLOW DES ───
+function renderGlowDes() {
+  const g=document.getElementById('gdList');
+  if (g.children.length>0) return;
+  const done={};
+  glowDes.forEach((d,i)=>{
+    done[i]=false;
+    const item=document.createElement('div');
+    item.className='gd-item';
+    item.innerHTML=`<div class="gd-ck" id="gd${i}"></div><div><div class="gd-t">${d.t}</div><div class="gd-d">${d.d}</div></div>`;
+    item.onclick=()=>{
+      done[i]=!done[i];
+      item.className='gd-item'+(done[i]?' ck':'');
+      document.getElementById('gd'+i).textContent=done[i]?'✓':'';
+      if (done[i]) { showToast('✓ '+d.t); document.getElementById('sn2').textContent=parseInt(document.getElementById('sn2').textContent)+1; }
+      scheduleSave();
+    };
+    g.appendChild(item);
+  });
+}
+
+// ─── PROFISSÃO ───
+function renderProfissao() {
+  const g=document.getElementById('profGrid');
+  if (g.children.length>0) return;
+  profissoes.forEach((p,i)=>{
+    const card=document.createElement('div');
+    card.className='prof-card';
+    card.innerHTML=`<div class="prof-top"><div class="prof-icon">${p.i}</div><div class="prof-name">${p.n}</div><div class="prof-match ${p.m==='high'?'pm-high':'pm-med'}">${p.m==='high'?'alto match':'bom match'}</div></div><div class="prof-desc">${p.d}</div><div class="prof-tags">${p.tags.map(t=>`<div class="ptag">${t}</div>`).join('')}</div><div class="prof-detail">${p.steps.map(s=>`<div class="pd-item"><div class="pd-arrow">→</div>${s}</div>`).join('')}</div>`;
+    card.onclick=()=>{ const isOpen=card.classList.contains('sel'); document.querySelectorAll('.prof-card').forEach(c=>c.classList.remove('sel')); if (!isOpen) card.classList.add('sel'); };
+    g.appendChild(card);
+  });
+  const md=document.getElementById('metodoDes');
+  ['Mês 1-2: Exploras 2-3 áreas (15 min cada por semana)','Mês 3: Escolhes 1 e aprofundas a skill','Mês 4: Crias algo real e mostras ao mundo','Mês 5-6: Construíste algo com potencial de rendimento'].forEach((s,i)=>{
+    md.innerHTML+=`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--mid)"><span style="color:var(--rose);font-weight:500;min-width:16px">${i+1}.</span>${s}</div>`;
+  });
+}
+
+// ─── SEMANA ───
+function renderSemana() {
+  const c=document.getElementById('semCard');
+  if (c.children.length>0) return;
+  semanaData.forEach((r,i)=>{
+    const row=document.createElement('div');
+    row.className='srow';
+    row.innerHTML=`<div class="sck" id="sck${i}"></div><div class="sday">${r.d}</div><div class="stask">${r.t}</div><div class="stag ${r.cl}">${r.tag}</div>`;
+    row.querySelector('.sck').onclick=e=>{
+      e.stopPropagation();
+      const el=document.getElementById('sck'+i);
+      const on=el.classList.contains('on');
+      el.className='sck'+(on?'':' on');
+      el.textContent=on?'':'✓';
+      if (!on) showToast('✓ '+r.d);
+      scheduleSave();
+    };
+    c.appendChild(row);
+  });
+}
+
+function nextSemDes() {
+  semDesIdx=(semDesIdx+1)%semDesList.length;
+  document.getElementById('semDesTitle').textContent=semDesList[semDesIdx].t;
+  document.getElementById('semDesDesc').textContent=semDesList[semDesIdx].d;
+}
+
+// ─── ROTINA ───
+function renderRotina() {
+  ['manha','dia','noite'].forEach(k=>{
+    const c=document.getElementById('rt-'+k);
+    if (c.children.length>0) return;
+    rotinaData[k].forEach(r=>{
+      c.innerHTML+=`<div class="rt-item"><div class="rt-time">${r.time}</div><div class="rt-task">${r.task}</div><div class="rt-sub">${r.sub}</div></div>`;
+    });
+  });
+  const cw=document.getElementById('cuidadosWrap');
+  if (cw.children.length>0) return;
+  [{e:'🧴',t:'Skincare manhã',d:'Limpeza · Hidratante · SPF'},{e:'🌙',t:'Skincare noite',d:'Limpeza · Sérum · Creme'},{e:'💧',t:'Água',d:'2L por dia'},{e:'🏃',t:'Movimento',d:'20 min/dia'}].forEach(c=>{
+    cw.innerHTML+=`<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start"><div style="font-size:18px;flex-shrink:0">${c.e}</div><div><div style="font-size:13px;font-weight:500;color:var(--ink)">${c.t}</div><div style="font-size:11px;color:var(--mid);margin-top:1px">${c.d}</div></div></div>`;
+  });
+}
+
+// ─── REUNIÃO ───
+function renderReuniao() {
+  const rw=document.getElementById('rqWrap');
+  if (rw.children.length>0) return;
+  reuniaoQs.forEach((q,i)=>{
+    rw.innerHTML+=`<div class="rq"><div class="rq-l">${q.l}</div><div class="rq-q">${q.q}</div><input class="rq-i" id="rqi${i}" placeholder="${q.ph}" type="text" oninput="scheduleSave()"></div>`;
+  });
+  const vc=document.getElementById('visaoCard');
+  vc.innerHTML=`<div class="ct">Daqui a 6 meses, sou uma mulher que...</div><div style="margin-top:0.7rem">`+
+    ['Descobriu a sua profissão — ou está no caminho','Tem rendimento próprio, mesmo que pequeno','Sabe como se veste e sente-se bem','Tem uma rotina que funciona','É um exemplo para as suas filhas e para si própria'].map(v=>`<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--mid);display:flex;gap:8px"><span style="color:var(--rose)">◦</span>${v}</div>`).join('')+'</div>';
+  const aw=document.getElementById('afirmWrap');
+  afirmacoes.forEach(a=>{aw.innerHTML+=`<div class="afirm">"${a}"</div>`;});
+}
+
+// ─── NAV ───
+function gt(id,el) {
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  el.classList.add('on');
+  window.scrollTo(0,0);
+}
+
+// ─── MODAL ───
+function om(t,b) { document.getElementById('moT').textContent=t; document.getElementById('moB').textContent=b; document.getElementById('mov').classList.add('on'); }
+function cm() { document.getElementById('mov').classList.remove('on'); }
+function cmov(e) { if(e.target.id==='mov') cm(); }
+
+// ─── UTILS ───
+function saveNota() {
+  const v=document.getElementById('nota').value.trim();
+  if (!v) return;
+  showToast('✍ Nota guardada!');
+  scheduleSave();
+}
+function showToast(m) {
+  const t=document.getElementById('toast');
+  t.textContent=m; t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2200);
+}
+
+// ─── START ───
+initAuth();
+</script>
+</body>
+</html>
